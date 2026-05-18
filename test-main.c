@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../dymeman.h"
 #include "stringbuilder.h"
 
 int main( void )
@@ -11,6 +10,8 @@ int main( void )
 	sb_appends( sb, "Hello, World!" );
 	sb_appendf( sb, 3.14 );
 	sb_appendi( sb, 69 );
+	
+	printf( "%sz", sb_length( sb ) );
 
 	sb_free( sb );
 	free( sb );
