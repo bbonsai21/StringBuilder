@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "../dymeman.h"
 #include "stringbuilder.h"
 
 /* SETUP */
@@ -202,3 +200,36 @@ size_t sb_length( StringBuilder* sb )
 
 	return len;
 }
+
+#define BUILD_DEFAULT_ALLOCATION 100
+char *sb_build( StringBuilder* sb )
+{
+	if ( !sb )
+		return nullptr;
+		
+	char len_buff[LEN_BUFF_SIZE];
+	size_t allocated = BUILD_DEFAULT_ALLOCATION;
+	char *str = malloc( allocated );
+	sb_elem_t* curr;
+	size_t curr_length = 0;
+	for ( int i = 0; i < sb->size; i++ )
+	{
+		curr = sb->pool[i];
+		if ( curr->type == SB_STRING )
+			curr_lenght = strlen( curr->value.strval );
+		else if ( curr->type == SB_INT )
+		{
+			snprintf( len_buff, LEN_BUFF_SIZE, "%d", curr->value.ival );
+			curr_len += strlen( len_buff );
+		}
+		else if ( curr->type == SB_FLOAT )
+		{
+			snprintf( len_buff, LEN_BUFF_SIZE, "%f", curr->value.fval );
+			len += strlen( len_buff );
+		}
+	}
+}
+
+
+
+
