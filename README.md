@@ -1,4 +1,6 @@
 # StringBuilder
+> **Status**: stable / completed (v1.0)
+> No new functionalities are expected, but **issues** and **pull requests** are welcome.
 
 A simple, lightweight, efficient string building library for C.
 
