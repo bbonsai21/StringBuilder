@@ -1,4 +1,4 @@
-#define BENCHMARKING
+//#define BENCHMARKING
 
 #include <stdio.h>
 #include <stdlib.h>
