@@ -201,9 +201,17 @@ size_t sb_length( StringBuilder* sb )
 	return len;
 }
 
+/**
+ * Checks if there is enough space in a buffer and, if not, expands it.
+ * @param buff pointer to the buffer
+ * @param allocated pointer to the amount of allocated memory
+ * @param offset is the offset in *buff
+ * @param neded amount of memory required for the operation
+ * @return bool success code
+ */
 bool check_and_alloc( char **buff, size_t *allocated, size_t offset, size_t needed )
 {
-	if ( offset + needed < *allocated ) return true;
+	if ( offset + needed + 1 < *allocated ) return true;
 	
 	char *new_buff = realloc( *buff, *allocated * EXPANSION_FACTOR );
 	if ( !new_buff ) return false;
@@ -267,6 +275,7 @@ char *sb_build( StringBuilder* sb )
 			offset += curr_length;
 		}
 	}
+	str[offset] = 0;
 	
 	return str;
 }
