@@ -166,7 +166,7 @@ void sb_free( StringBuilder* sb )
 	if ( !sb )
 		return;
 
-	for ( int i = 0; i < sb->size; i++ )
+	for ( size_t i = 0; i < sb->size; i++ )
 		free( sb->pool[i] );
 
 	free( sb->pool );
@@ -181,7 +181,7 @@ size_t sb_length( StringBuilder* sb )
 	char len_buff[LEN_BUFF_SIZE];
 	sb_elem_t* curr;
 	size_t len = 0;
-	for ( int i = 0; i < sb->size; i++ )
+	for ( size_t i = 0; i < sb->size; i++ )
 	{
 		curr = sb->pool[i];
 		if ( curr->type == SB_STRING )
@@ -193,12 +193,24 @@ size_t sb_length( StringBuilder* sb )
 		}
 		else if ( curr->type == SB_FLOAT )
 		{
-			snprintf( len_buff, LEN_BUFF_SIZE, "%f", curr->value.fval );
+			snprintf( len_buff, LEN_BUFF_SIZE, "%g", curr->value.fval );
 			len += strlen( len_buff );
 		}
 	}
 
 	return len;
+}
+
+bool check_and_alloc( char **buff, size_t *allocated, size_t offset, size_t needed )
+{
+	if ( offset + needed < *allocated ) return true;
+	
+	char *new_buff = realloc( *buff, *allocated * EXPANSION_FACTOR );
+	if ( !new_buff ) return false;
+	*buff = new_buff;
+	
+	*allocated *= 2;
+	return true;
 }
 
 #define BUILD_DEFAULT_ALLOCATION 100
@@ -210,24 +222,53 @@ char *sb_build( StringBuilder* sb )
 	char len_buff[LEN_BUFF_SIZE];
 	size_t allocated = BUILD_DEFAULT_ALLOCATION;
 	char *str = malloc( allocated );
-	sb_elem_t* curr;
 	size_t curr_length = 0;
-	for ( int i = 0; i < sb->size; i++ )
+	size_t offset = 0;
+	sb_elem_t* curr;
+	for ( size_t i = 0; i < sb->size; i++ )
 	{
 		curr = sb->pool[i];
 		if ( curr->type == SB_STRING )
-			curr_lenght = strlen( curr->value.strval );
+		{
+			curr_length = strlen( curr->value.strval );
+			bool is_ready = check_and_alloc( &str, &allocated, offset, curr_length );
+			if ( !is_ready )
+			{
+				free( str );
+				return nullptr;
+			}
+			memcpy( str + offset, curr->value.strval, curr_length );
+			offset += curr_length;
+		}
 		else if ( curr->type == SB_INT )
 		{
 			snprintf( len_buff, LEN_BUFF_SIZE, "%d", curr->value.ival );
-			curr_len += strlen( len_buff );
+			curr_length = strlen( len_buff );
+			bool is_ready = check_and_alloc( &str, &allocated, offset, curr_length );
+			if ( !is_ready )
+			{
+				free( str );
+				return nullptr;
+			}
+			memcpy( str + offset, len_buff, curr_length );
+			offset += curr_length;
 		}
 		else if ( curr->type == SB_FLOAT )
 		{
-			snprintf( len_buff, LEN_BUFF_SIZE, "%f", curr->value.fval );
-			len += strlen( len_buff );
+			snprintf( len_buff, LEN_BUFF_SIZE, "%g", curr->value.fval );
+			curr_length = strlen( len_buff );
+			bool is_ready = check_and_alloc( &str, &allocated, offset, curr_length );
+			if ( !is_ready )
+			{
+				free( str );
+				return nullptr;
+			}
+			memcpy( str + offset, len_buff, curr_length );
+			offset += curr_length;
 		}
 	}
+	
+	return str;
 }
 
 
