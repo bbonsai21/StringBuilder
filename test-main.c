@@ -43,9 +43,8 @@ int main(void)
         sb_appends(sb, " - ");
         sb_appendf(sb, (double)rand() / RAND_MAX * 1000.0);
 
-        // Forza l'uso del risultato senza permettere troppe ottimizzazioni
         char* built = sb_build(sb);
-        volatile char first_char = built[0];  // anti-optimization
+        volatile char first_char = built[0]; // anti-optimisation
         (void)first_char;
 
         sb_free(sb);
